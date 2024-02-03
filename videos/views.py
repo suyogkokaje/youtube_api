@@ -2,6 +2,7 @@ from rest_framework import viewsets
 from rest_framework.pagination import PageNumberPagination
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
+from django.http import JsonResponse
 from .models import Video
 from .serializers import VideoSerializer
 
@@ -17,13 +18,17 @@ class VideoViewSet(viewsets.ReadOnlyModelViewSet):
 
     @method_decorator(cache_page(60 * 15, cache='default'))
     def list(self, request, *args, **kwargs):
-        queryset = Video.objects.all().order_by('-published_at')
+        try:
+            queryset = Video.objects.all().order_by('-published_at')
 
-        start_date = request.query_params.get('start_date', None)
-        end_date = request.query_params.get('end_date', None)
+            start_date = request.query_params.get('start_date', None)
+            end_date = request.query_params.get('end_date', None)
 
-        if start_date and end_date:
-            queryset = queryset.filter(published_at__range=[start_date, end_date])
+            if start_date and end_date:
+                queryset = queryset.filter(published_at__range=[start_date, end_date])
 
-        self.queryset = queryset
-        return super().list(request, *args, **kwargs)
+            self.queryset = queryset
+            return super().list(request, *args, **kwargs)
+
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
