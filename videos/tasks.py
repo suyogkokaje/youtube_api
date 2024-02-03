@@ -1,5 +1,5 @@
 from googleapiclient.discovery import build
-from datetime import datetime
+from datetime import datetime, timedelta
 from .models import Video
 from yt_api.utils import get_yt_api_key
 from celery import shared_task
@@ -51,7 +51,9 @@ def fetch_and_store_youtube_videos():
             published_at = datetime.strptime(video_info['publishedAt'], "%Y-%m-%dT%H:%M:%SZ")
             thumbnail_url = video_info['thumbnails']['default']['url']
 
-            save_video_to_db(video_id, title, description, published_at, thumbnail_url)
+            ten_seconds_ago = datetime.utcnow() - timedelta(seconds=10)
+            if published_at >= ten_seconds_ago:
+                save_video_to_db(video_id, title, description, published_at, thumbnail_url)
 
         print("Videos saved to the DB successfully")
 

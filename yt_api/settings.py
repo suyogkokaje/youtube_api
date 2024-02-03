@@ -89,7 +89,7 @@ CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
 CELERY_BEAT_SCHEDULE = {
     'fetch-youtube-videos': {
         'task': 'videos.tasks.fetch_and_store_youtube_videos',
-        'schedule': 10,
+        'schedule': 30,#changing due to limit exceeded on api
     },
 }
 
