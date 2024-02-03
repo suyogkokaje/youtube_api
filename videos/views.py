@@ -9,6 +9,6 @@ class VideoPagination(PageNumberPagination):
     max_page_size = 100
 
 class VideoViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Video.objects.all()
+    queryset = Video.objects.all().order_by('-published_at')
     serializer_class = VideoSerializer
     pagination_class = VideoPagination
