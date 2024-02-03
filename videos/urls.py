@@ -1,6 +1,10 @@
-from django.urls import path
-# from .views import get_youtube_videos
+from django.urls import path,include
+from rest_framework.routers import DefaultRouter
+from .views import VideoViewSet
+
+router = DefaultRouter()
+router.register(r'videos', VideoViewSet, basename='video')
 
 urlpatterns = [
-    # path('get_yt_videos/', get_youtube_videos, name='get_youtube_videos'),
+    path('api/', include(router.urls)),
 ]
