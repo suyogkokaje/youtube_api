@@ -5,7 +5,7 @@ from yt_api.utils import get_yt_api_key
 from celery import shared_task
 
 def save_video_to_db(video_id, title, description, published_at, thumbnail_url):
-    video, created = Video.objects.get_or_create(
+    Video.objects.get_or_create(
         video_id=video_id,
         defaults={
             'title': title,
@@ -14,13 +14,6 @@ def save_video_to_db(video_id, title, description, published_at, thumbnail_url):
             'thumbnail_url': thumbnail_url,
         }
     )
-
-    if not created:
-        video.title = title
-        video.description = description
-        video.published_at = published_at
-        video.thumbnail_url = thumbnail_url
-        video.save()
 
 @shared_task
 def fetch_and_store_youtube_videos():
@@ -50,10 +43,10 @@ def fetch_and_store_youtube_videos():
             description = video_info['description']
             published_at = datetime.strptime(video_info['publishedAt'], "%Y-%m-%dT%H:%M:%SZ")
             thumbnail_url = video_info['thumbnails']['default']['url']
-
-            ten_seconds_ago = datetime.utcnow() - timedelta(seconds=10)
-            if published_at >= ten_seconds_ago:
-                save_video_to_db(video_id, title, description, published_at, thumbnail_url)
+            # print("title:"+title)
+            # ten_seconds_ago = datetime.utcnow() - timedelta(seconds=10)
+            # if published_at >= ten_seconds_ago:
+            save_video_to_db(video_id, title, description, published_at, thumbnail_url)
 
         print("Videos saved to the DB successfully")
 
