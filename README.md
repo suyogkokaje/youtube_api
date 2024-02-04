@@ -21,11 +21,11 @@
 
 ## Tech Stack
 
-- Django
-- DRF
-- Celery
-- Redis
-- PostgreSQL
+- Django : Robust backend framework
+- DRF : Building Web APIs
+- Celery : Distributed Task Queue
+- Redis : Caching and message brokering
+- PostgreSQL : Relational database management system
 
 <hr>
 
@@ -80,7 +80,12 @@
     python manage.py createsuperuser
 ```
 
-9. Now add the API keys to the database. Visit the admin dashboard on below url
+9. Now run the server using below mentioned command and add the API keys to the database. 
+
+```bash
+    python manage.py runserver
+```
+Visit the admin dashboard on below url
 
 ```bash
     http://127.0.0.1:8000/admin
