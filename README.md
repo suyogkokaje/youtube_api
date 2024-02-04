@@ -13,7 +13,7 @@
 
 3. `Redis` caching is implemented to cache the response of the page.
 
-4. `PostreSQL` database is used to store the data. It is indexed on `published_at` field for faster sorting of data based on `published_at` field.
+4. `PostreSQL` database is used to store the data. It is indexed on `published_at` field for faster sorting of data based on `published_at` field and indexed on `id` field for faster searching.
 
 5. If quota of any of the API keys is exhausted then that key is blacklisted (can never be used again) and the next available API key will be used.
 
@@ -105,3 +105,10 @@
 ```bash
     http://127.0.0.1:8000/swagger/
 ```
+
+10. If you want to clear the redis cache then use the following command
+
+```bash
+    redis-cli FLUSHDB
+```
+
