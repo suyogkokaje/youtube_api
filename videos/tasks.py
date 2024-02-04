@@ -60,11 +60,14 @@ def fetch_and_store_youtube_videos():
         youtube = get_youtube_service(api_key)
 
         try:
+            one_month_ago = datetime.now() - timedelta(days=30)
+
             search_response = youtube.search().list(
                 q='python programming',
                 type='video',
                 part='id,snippet',
-                maxResults=10 
+                maxResults=10,
+                publishedAfter=one_month_ago.isoformat() + 'Z',
             ).execute()
 
             for search_result in search_response.get('items', []):
