@@ -45,13 +45,19 @@
     python3 -m venv env && source env/bin/activate
 ```
 
-3. Create the .env file from .env.example file in the root of the project
+4. Now install the all the dependecies 
+
+```bash
+    pip install -r requirements.txt
+```
+
+5. Create the .env file from .env.example file in the root of the project
 
 ```bash
     cp .env .env.example
 ```
 
-4. Generate the secret key for your app and update it in the .env file
+6. Generate the secret key for your app and update it in the .env file
 
 ```bash
     # Open a Python shell
@@ -62,25 +68,25 @@
 
 ```
 
-5. Apply database migrations
+7. Apply database migrations
 
 ```bash
     python manage.py makemigrations && python manage.py migrate
 ```
 
-5. Create a super user to add API keys in the database using admin dashboard
+8. Create a super user to add API keys in the database using admin dashboard
 
 ```bash
     python manage.py createsuperuser
 ```
 
-6. Now add the API keys to the database. Visit the admin dashboard on below url
+9. Now add the API keys to the database. Visit the admin dashboard on below url
 
 ```bash
     http://127.0.0.1:8000/admin
 ```
 
-7. Now to run the project open 3 different terminals and enter each of the belowcommand in different terminals to run the application, celery worker and celery beat respectively.
+10. Now to run the project open 3 different terminals and enter each of the belowcommand in different terminals to run the application, celery worker and celery beat respectively.
 
 ```bash
     python manage.py runserver
@@ -94,19 +100,19 @@
     celery -A yt_api.celery beat --loglevel=info
 ```
 
-8. Now to retrieve the data stored in the database you can make the `GET` request to the following url
+11. Now to retrieve the data stored in the database you can make the `GET` request to the following url
 
 ```bash
     http://127.0.0.1:8000/api/videos/
 ```
 
-9. To view the documentation visit the below url
+12. To view the documentation visit the below url
 
 ```bash
     http://127.0.0.1:8000/swagger/
 ```
 
-10. If you want to clear the redis cache then use the following command
+13. If you want to clear the redis cache then use the following command
 
 ```bash
     redis-cli FLUSHDB
