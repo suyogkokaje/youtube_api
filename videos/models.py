@@ -10,4 +10,5 @@ class Video(models.Model):
     class Meta:
         indexes = [
             models.Index(fields=['published_at']),
+            models.Index(fields=['id']),
         ]
