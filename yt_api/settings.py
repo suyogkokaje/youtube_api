@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'videos',
-    'api_key'
+    'api_key',
+    'drf_yasg'
 ]
 
 MIDDLEWARE = [
