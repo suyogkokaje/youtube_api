@@ -1,8 +1,11 @@
 from googleapiclient.discovery import build
 from datetime import datetime, timedelta
 from .models import Video
-from yt_api.utils import get_yt_api_key
 from celery import shared_task
+from api_key.models import ApiKey
+
+def get_youtube_service(api_key):
+    return build('youtube', 'v3', developerKey=api_key)
 
 def save_video_to_db(video_id, title, description, published_at, thumbnail_url):
     Video.objects.get_or_create(
@@ -15,41 +18,59 @@ def save_video_to_db(video_id, title, description, published_at, thumbnail_url):
         }
     )
 
-@shared_task
-def fetch_and_store_youtube_videos():
-    api_key = get_yt_api_key()
-    query = 'python programming'
+def fetch_video_info(youtube, video_id):
+    video_response = youtube.videos().list(
+        id=video_id,
+        part='snippet,contentDetails'
+    ).execute()
 
-    youtube = build('youtube', 'v3', developerKey=api_key)
+    video_info = video_response.get('items', [])[0]['snippet']
+    return video_info
 
-    try:
-        search_response = youtube.search().list(
-            q=query,
-            type='video',
-            part='id,snippet',
-            maxResults=10 
-        ).execute()
+def process_search_result(search_result, youtube):
+    video_id = search_result['id']['videoId']
+    video_info = fetch_video_info(youtube, video_id)
 
-        for search_result in search_response.get('items', []):
-            video_id = search_result['id']['videoId']
-            video_response = youtube.videos().list(
-                id=video_id,
-                part='snippet,contentDetails'
-            ).execute()
+    title = video_info['title']
+    description = video_info['description']
+    published_at = datetime.strptime(video_info['publishedAt'], "%Y-%m-%dT%H:%M:%SZ")
+    thumbnail_url = video_info['thumbnails']['default']['url']
 
-            video_info = video_response.get('items', [])[0]['snippet']
+    save_video_to_db(video_id, title, description, published_at, thumbnail_url)
 
-            title = video_info['title']
-            description = video_info['description']
-            published_at = datetime.strptime(video_info['publishedAt'], "%Y-%m-%dT%H:%M:%SZ")
-            thumbnail_url = video_info['thumbnails']['default']['url']
-            # print("title:"+title)
-            # ten_seconds_ago = datetime.utcnow() - timedelta(seconds=10)
-            # if published_at >= ten_seconds_ago:
-            save_video_to_db(video_id, title, description, published_at, thumbnail_url)
-
-        print("Videos saved to the DB successfully")
-
-    except Exception as e:
+def handle_exception(api_key_obj, e):
+    if 'quotaExceeded' in str(e):
+        print(f"Quota exceeded for API key: {api_key_obj.key}. Marking it as blacklisted.")
+        api_key_obj.blacklisted = True
+        api_key_obj.save()
+    else:
         print("Following error occurred while saving the video to the db")
         print(e)
+
+@shared_task
+def fetch_and_store_youtube_videos():
+    api_keys = ApiKey.objects.filter(blacklisted=False)
+
+    if not api_keys.exists():
+        print("No valid API keys available.")
+        return
+
+    for api_key_obj in api_keys:
+        api_key = api_key_obj.key
+        youtube = get_youtube_service(api_key)
+
+        try:
+            search_response = youtube.search().list(
+                q='python programming',
+                type='video',
+                part='id,snippet',
+                maxResults=10 
+            ).execute()
+
+            for search_result in search_response.get('items', []):
+                process_search_result(search_result, youtube)
+
+            print("Videos saved to the DB successfully")
+
+        except Exception as e:
+            handle_exception(api_key_obj, e)
