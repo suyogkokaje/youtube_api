@@ -61,7 +61,7 @@ def fetch_and_store_youtube_videos():
         youtube = get_youtube_service(api_key)
 
         try:
-            one_month_ago = timezone.now() - timedelta(days=30)
+            one_month_ago = datetime.now() - timedelta(days=30)
 
             search_response = youtube.search().list(
                 q='python programming',
